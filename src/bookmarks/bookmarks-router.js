@@ -31,7 +31,7 @@ bookmarksRouter
         .status(400)
         .send('Invalid data');
     }
-    
+
     if (!url) {
       logger.error(`URL is required`);
       return res
@@ -64,7 +64,14 @@ bookmarksRouter
       url,
       rating
     };
-    
+
+    try {
+      const valid = validateBookmark(bookmark)
+    } catch (error) {
+      //
+      console.log(error)
+    }
+
     bookmarks.push(bookmark);
 
     // log the bookmark creation and send a response including a location header
@@ -76,40 +83,40 @@ bookmarksRouter
       .json(bookmark);
   })
 
-bookmarksRouter 
-.route('/bookmarks/:id')
-.get((req, res) => {
-  const { id } = req.params;
-  const bookmark = bookmarks.find(bm => bm.id == id);
-  
-  // make sure we found a card
-  if (!bookmark) {
-    logger.error(`Bookmark with id ${id} not found.`);
-    return res
-      .status(404)
-      .send('Bookmark Not Found');
-  }
+bookmarksRouter
+  .route('/bookmarks/:id')
+  .get((req, res) => {
+    const { id } = req.params;
+    const bookmark = bookmarks.find(bm => bm.id == id);
 
-  res.json(bookmark);
-})  
-.delete((req, res) => {
-  const { id } = req.params;
-  const bookmarkIndex = bookmarks.findIndex(bm => bm.id == id);
+    // make sure we found a card
+    if (!bookmark) {
+      logger.error(`Bookmark with id ${id} not found.`);
+      return res
+        .status(404)
+        .send('Bookmark Not Found');
+    }
 
-  if (bookmarkIndex === -1) {
-    logger.error(`Bookmark with id ${id} not found.`);
-    return res
-      .status(404)
-      .send('Not found');
-  }
+    res.json(bookmark);
+  })
+  .delete((req, res) => {
+    const { id } = req.params;
+    const bookmarkIndex = bookmarks.findIndex(bm => bm.id == id);
 
-  bookmarks.splice(bookmarkIndex, 1);
-  
-  logger.info(`Bookmark with id ${id} deleted.`);
+    if (bookmarkIndex === -1) {
+      logger.error(`Bookmark with id ${id} not found.`);
+      return res
+        .status(404)
+        .send('Not found');
+    }
 
-  res
-    .status(204)
-    .end();
-})
+    bookmarks.splice(bookmarkIndex, 1);
+
+    logger.info(`Bookmark with id ${id} deleted.`);
+
+    res
+      .status(204)
+      .end();
+  })
 
 module.exports = bookmarksRouter
